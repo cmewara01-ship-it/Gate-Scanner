@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Gate Scanner — प्रभूत नागरिक संवाद</title>
+<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#1A0E00;min-height:100vh;display:flex;flex-direction:column;}
+
+.top{background:#F97D09;padding:14px 20px 12px;text-align:center;border-bottom:3px solid #278D27;}
+.top-title{color:#fff;font-size:16px;font-weight:700;letter-spacing:1px;}
+.top-sub{color:rgba(255,235,200,0.9);font-size:11px;margin-top:3px;}
+
+.main{flex:1;padding:20px 16px;display:flex;flex-direction:column;gap:14px;max-width:480px;margin:0 auto;width:100%;}
+
+.card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 16px rgba(0,0,0,0.4);}
+.card-title{font-size:12px;font-weight:700;color:#888;letter-spacing:1px;margin-bottom:12px;text-align:center;}
+
+input[type=text]{
+  width:100%;padding:14px;
+  border:2px solid #EDD8A8;border-radius:8px;
+  font-size:18px;font-weight:700;text-align:center;
+  letter-spacing:3px;color:#1A0E00;outline:none;
+  text-transform:uppercase;
+}
+input[type=text]:focus{border-color:#F97D09;}
+
+.btn{
+  width:100%;padding:15px;border:none;border-radius:8px;
+  font-size:16px;font-weight:700;cursor:pointer;
+  margin-top:10px;transition:opacity .2s;
+}
+.btn:active{opacity:0.8;}
+.btn-verify{background:#F97D09;color:#fff;}
+.btn-scan{background:#278D27;color:#fff;margin-top:8px;}
+.btn-stop{background:#333;color:#fff;border-radius:0 0 8px 8px;margin-top:0;padding:12px;}
+.btn-reset{background:#eee;color:#333;margin-top:14px;}
+
+/* Camera */
+#cam-wrap{display:none;border-radius:10px;overflow:hidden;position:relative;}
+#cam-wrap video{width:100%;display:block;max-height:280px;object-fit:cover;}
+.cam-overlay{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:200px;height:200px;
+  border:3px solid #F97D09;
+  border-radius:12px;
+  box-shadow:0 0 0 1000px rgba(0,0,0,0.4);
+  pointer-events:none;
+}
+.cam-label{
+  position:absolute;bottom:40px;left:0;right:0;
+  text-align:center;color:#fff;font-size:12px;font-weight:700;
+  text-shadow:0 1px 3px rgba(0,0,0,0.8);
+}
+
+/* Scanning spinner */
+#scanning{display:none;text-align:center;padding:20px;color:#fff;}
+.spinner{
+  width:40px;height:40px;
+  border:4px solid rgba(249,125,9,0.3);
+  border-top:4px solid #F97D09;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  margin:0 auto 12px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Result */
+#result{display:none;border-radius:12px;padding:24px 20px;text-align:center;}
+#result.valid{background:#E8F5E9;border:3px solid #278D27;}
+#result.duplicate{background:#FFF3E0;border:3px solid #F97D09;}
+#result.invalid{background:#FFEBEE;border:3px solid #D32F2F;}
+.r-icon{font-size:56px;margin-bottom:10px;line-height:1;}
+.r-name{font-size:24px;font-weight:700;color:#1A0E00;margin-bottom:4px;}
+.r-table{font-size:20px;font-weight:700;margin-bottom:8px;}
+.r-msg{font-size:14px;color:#444;margin-bottom:4px;line-height:1.4;}
+.r-code{font-size:11px;color:#888;letter-spacing:1px;}
+.r-time{font-size:11px;color:#888;margin-top:4px;}
+
+/* Config */
+#config-section{background:#222;border-radius:10px;padding:14px;}
+#config-section label{color:#aaa;font-size:11px;display:block;margin-bottom:5px;}
+#script-url{width:100%;padding:10px;border-radius:6px;border:1px solid #444;background:#333;color:#fff;font-size:12px;}
+.btn-save-url{background:#444;color:#fff;font-size:13px;padding:10px;margin-top:8px;}
+#url-status{color:#4CAF50;font-size:11px;margin-top:5px;text-align:center;display:none;}
+
+.footer{background:#278D27;padding:5px;text-align:center;color:#fff;font-size:9px;letter-spacing:1px;font-weight:700;}
+.footer2{background:#F97D09;padding:5px;text-align:center;color:#fff;font-size:9px;letter-spacing:1px;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-title">🔐 GATE ENTRY SCANNER</div>
+  <div class="top-sub">प्रभूत नागरिक संवाद — 6 June 2026</div>
+</div>
+
+<div class="main">
+
+  <!-- Input card -->
+  <div class="card" id="input-card">
+    <div class="card-title">ENTRY CODE दर्ज करें या QR स्कैन करें</div>
+    <input type="text" id="code-input" placeholder="e.g. PNS7CHI..." autocomplete="off" autocorrect="off" autocapitalize="characters"/>
+    <button class="btn btn-verify" onclick="verifyManual()">✓ Verify Entry</button>
+    <button class="btn btn-scan" onclick="startScan()">📷 QR कोड स्कैन करें</button>
+  </div>
+
+  <!-- Camera -->
+  <div id="cam-wrap">
+    <video id="qr-video" playsinline muted></video>
+    <div class="cam-overlay"></div>
+    <div class="cam-label">QR code को बॉक्स में रखें</div>
+    <button class="btn btn-stop" onclick="stopScan()">✕ स्कैन बंद करें</button>
+  </div>
+
+  <!-- Scanning -->
+  <div id="scanning">
+    <div class="spinner"></div>
+    <div style="font-size:14px;font-weight:700;">जांच हो रही है...</div>
+  </div>
+
+  <!-- Result -->
+  <div id="result">
+    <div class="r-icon" id="r-icon"></div>
+    <div class="r-name" id="r-name"></div>
+    <div class="r-table" id="r-table"></div>
+    <div class="r-msg" id="r-msg"></div>
+    <div class="r-code" id="r-code"></div>
+    <div class="r-time" id="r-time"></div>
+    <button class="btn btn-reset" onclick="reset()">↺ अगला प्रवेशार्थी</button>
+  </div>
+
+  <!-- Config -->
+  <div id="config-section">
+    <label>Apps Script URL (एक बार सेट करें)</label>
+    <input type="text" id="script-url" placeholder="https://script.google.com/macros/s/.../exec" style="text-transform:none;letter-spacing:0;font-size:12px;"/>
+    <button class="btn btn-save-url" onclick="saveUrl()">💾 Save URL</button>
+    <div id="url-status">✓ URL saved!</div>
+  </div>
+
+</div>
+
+<div class="footer">भारत माता की जय</div>
+<div class="footer2">Carnival Banquet Hall | 6 June 2026 | 3:45 PM</div>
+
+<script>
+var stream = null;
+var scanInterval = null;
+var scanning = false;
+
+// Load saved URL
+window.onload = function() {
+  var saved = localStorage.getItem('bjp_scanner_url');
+  if (saved) document.getElementById('script-url').value = saved;
+};
+
+function saveUrl() {
+  var url = document.getElementById('script-url').value.trim();
+  if (!url) { alert('URL दर्ज करें'); return; }
+  localStorage.setItem('bjp_scanner_url', url);
+  document.getElementById('url-status').style.display = 'block';
+  setTimeout(function(){ document.getElementById('url-status').style.display = 'none'; }, 2000);
+}
+
+function getScriptUrl() {
+  var url = localStorage.getItem('bjp_scanner_url') || document.getElementById('script-url').value.trim();
+  if (!url) { alert('कृपया पहले Apps Script URL save करें'); return null; }
+  return url;
+}
+
+function verifyManual() {
+  var code = document.getElementById('code-input').value.trim().toUpperCase();
+  if (!code) { alert('कृपया Entry Code दर्ज करें'); return; }
+  verify(code);
+}
+
+function verify(code) {
+  var url = getScriptUrl();
+  if (!url) return;
+
+  stopScan();
+  document.getElementById('input-card').style.display = 'none';
+  document.getElementById('cam-wrap').style.display = 'none';
+  document.getElementById('scanning').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+
+  // Call Apps Script via fetch with no-cors workaround
+  fetch(url + '?action=verify&code=' + encodeURIComponent(code))
+    .then(function(r){ return r.text(); })
+    .then(function(text){
+      // Apps Script returns HTML by default, extract JSON
+      var match = text.match(/\{.*\}/s);
+      if (match) {
+        showResult(match[0]);
+      } else {
+        showResult(text);
+      }
+    })
+    .catch(function(err){
+      document.getElementById('scanning').style.display = 'none';
+      alert('Connection error. Check URL and internet.');
+      reset();
+    });
+}
+
+function showResult(response) {
+  document.getElementById('scanning').style.display = 'none';
+  var data;
+  try { data = JSON.parse(response); }
+  catch(e) { alert('Response error: ' + response); reset(); return; }
+
+  var box = document.getElementById('result');
+  box.className = 'result';
+
+  if (data.result === 'valid') {
+    box.classList.add('valid');
+    document.getElementById('r-icon').innerText = '✅';
+    document.getElementById('r-name').innerText = data.name + ' Ji';
+    document.getElementById('r-table').innerHTML = '<span style="color:#278D27">Table No. ' + data.table + '</span>';
+    document.getElementById('r-msg').innerText = 'प्रवेश स्वीकृत — स्वागत है!';
+    document.getElementById('r-code').innerText = 'Code: ' + data.code;
+    document.getElementById('r-time').innerText = 'Scanned: ' + data.time;
+  } else if (data.result === 'duplicate') {
+    box.classList.add('duplicate');
+    document.getElementById('r-icon').innerText = '⚠️';
+    document.getElementById('r-name').innerText = data.name || '';
+    document.getElementById('r-table').innerText = '';
+    document.getElementById('r-msg').innerText = data.message;
+    document.getElementById('r-code').innerText = '';
+    document.getElementById('r-time').innerText = 'पूर्व में स्कैन: ' + (data.scannedAt || '');
+  } else {
+    box.classList.add('invalid');
+    document.getElementById('r-icon').innerText = '❌';
+    document.getElementById('r-name').innerText = data.name || 'अज्ञात';
+    document.getElementById('r-table').innerText = '';
+    document.getElementById('r-msg').innerText = data.message || 'Invalid';
+    document.getElementById('r-code').innerText = '';
+    document.getElementById('r-time').innerText = '';
+  }
+  box.style.display = 'block';
+}
+
+function reset() {
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('scanning').style.display = 'none';
+  document.getElementById('cam-wrap').style.display = 'none';
+  document.getElementById('input-card').style.display = 'block';
+  document.getElementById('code-input').value = '';
+  document.getElementById('code-input').focus();
+}
+
+function startScan() {
+  var camWrap = document.getElementById('cam-wrap');
+  var video = document.getElementById('qr-video');
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('आपका browser camera support नहीं करता। कृपया code manually type करें।');
+    return;
+  }
+
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+  })
+  .then(function(s) {
+    stream = s;
+    video.srcObject = s;
+    video.play();
+    camWrap.style.display = 'block';
+    document.getElementById('input-card').style.display = 'none';
+    scanning = true;
+
+    scanInterval = setInterval(function() {
+      if (!scanning || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+      var canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      var code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+      if (code && code.data) {
+        scanning = false;
+        verify(code.data.trim().toUpperCase());
+      }
+    }, 250);
+  })
+  .catch(function(err) {
+    if (err.name === 'NotAllowedError') {
+      alert('Camera permission denied.\n\nPhone Settings → Chrome → Camera → Allow\n\nतब page reload करें।');
+    } else if (err.name === 'NotFoundError') {
+      alert('Camera नहीं मिला। कृपया code manually type करें।');
+    } else {
+      alert('Camera error: ' + err.message);
+    }
+  });
+}
+
+function stopScan() {
+  scanning = false;
+  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+  if (stream) { stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+  document.getElementById('cam-wrap').style.display = 'none';
+  document.getElementById('input-card').style.display = 'block';
+}
+
+document.getElementById('code-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') verifyManual();
+});
+</script>
+</body>
+</html>
