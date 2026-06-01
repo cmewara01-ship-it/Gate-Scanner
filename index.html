@@ -8,67 +8,27 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Arial,sans-serif;background:#1A0E00;min-height:100vh;display:flex;flex-direction:column;}
-
 .top{background:#F97D09;padding:14px 20px 12px;text-align:center;border-bottom:3px solid #278D27;}
 .top-title{color:#fff;font-size:16px;font-weight:700;letter-spacing:1px;}
 .top-sub{color:rgba(255,235,200,0.9);font-size:11px;margin-top:3px;}
-
 .main{flex:1;padding:20px 16px;display:flex;flex-direction:column;gap:14px;max-width:480px;margin:0 auto;width:100%;}
-
 .card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 16px rgba(0,0,0,0.4);}
 .card-title{font-size:12px;font-weight:700;color:#888;letter-spacing:1px;margin-bottom:12px;text-align:center;}
-
-input[type=text]{
-  width:100%;padding:14px;
-  border:2px solid #EDD8A8;border-radius:8px;
-  font-size:18px;font-weight:700;text-align:center;
-  letter-spacing:3px;color:#1A0E00;outline:none;
-  text-transform:uppercase;
-}
+input[type=text]{width:100%;padding:14px;border:2px solid #EDD8A8;border-radius:8px;font-size:18px;font-weight:700;text-align:center;letter-spacing:3px;color:#1A0E00;outline:none;text-transform:uppercase;}
 input[type=text]:focus{border-color:#F97D09;}
-
-.btn{
-  width:100%;padding:15px;border:none;border-radius:8px;
-  font-size:16px;font-weight:700;cursor:pointer;
-  margin-top:10px;transition:opacity .2s;
-}
+.btn{width:100%;padding:15px;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px;transition:opacity .2s;}
 .btn:active{opacity:0.8;}
 .btn-verify{background:#F97D09;color:#fff;}
 .btn-scan{background:#278D27;color:#fff;margin-top:8px;}
 .btn-stop{background:#333;color:#fff;border-radius:0 0 8px 8px;margin-top:0;padding:12px;}
 .btn-reset{background:#eee;color:#333;margin-top:14px;}
-
-/* Camera */
 #cam-wrap{display:none;border-radius:10px;overflow:hidden;position:relative;}
 #cam-wrap video{width:100%;display:block;max-height:280px;object-fit:cover;}
-.cam-overlay{
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:200px;height:200px;
-  border:3px solid #F97D09;
-  border-radius:12px;
-  box-shadow:0 0 0 1000px rgba(0,0,0,0.4);
-  pointer-events:none;
-}
-.cam-label{
-  position:absolute;bottom:40px;left:0;right:0;
-  text-align:center;color:#fff;font-size:12px;font-weight:700;
-  text-shadow:0 1px 3px rgba(0,0,0,0.8);
-}
-
-/* Scanning spinner */
-#scanning{display:none;text-align:center;padding:20px;color:#fff;}
-.spinner{
-  width:40px;height:40px;
-  border:4px solid rgba(249,125,9,0.3);
-  border-top:4px solid #F97D09;
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-  margin:0 auto 12px;
-}
+.cam-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;border:3px solid #F97D09;border-radius:12px;box-shadow:0 0 0 1000px rgba(0,0,0,0.4);pointer-events:none;}
+.cam-label{position:absolute;bottom:40px;left:0;right:0;text-align:center;color:#fff;font-size:12px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,0.8);}
+#scanning{display:none;text-align:center;padding:30px 20px;color:#fff;}
+.spinner{width:48px;height:48px;border:4px solid rgba(249,125,9,0.3);border-top:4px solid #F97D09;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
-/* Result */
 #result{display:none;border-radius:12px;padding:24px 20px;text-align:center;}
 #result.valid{background:#E8F5E9;border:3px solid #278D27;}
 #result.duplicate{background:#FFF3E0;border:3px solid #F97D09;}
@@ -79,14 +39,11 @@ input[type=text]:focus{border-color:#F97D09;}
 .r-msg{font-size:14px;color:#444;margin-bottom:4px;line-height:1.4;}
 .r-code{font-size:11px;color:#888;letter-spacing:1px;}
 .r-time{font-size:11px;color:#888;margin-top:4px;}
-
-/* Config */
 #config-section{background:#222;border-radius:10px;padding:14px;}
 #config-section label{color:#aaa;font-size:11px;display:block;margin-bottom:5px;}
-#script-url{width:100%;padding:10px;border-radius:6px;border:1px solid #444;background:#333;color:#fff;font-size:12px;}
+#script-url{width:100%;padding:10px;border-radius:6px;border:1px solid #444;background:#333;color:#fff;font-size:12px;text-transform:none;letter-spacing:0;}
 .btn-save-url{background:#444;color:#fff;font-size:13px;padding:10px;margin-top:8px;}
-#url-status{color:#4CAF50;font-size:11px;margin-top:5px;text-align:center;display:none;}
-
+#url-status{color:#4CAF50;font-size:12px;margin-top:6px;text-align:center;display:none;font-weight:700;}
 .footer{background:#278D27;padding:5px;text-align:center;color:#fff;font-size:9px;letter-spacing:1px;font-weight:700;}
 .footer2{background:#F97D09;padding:5px;text-align:center;color:#fff;font-size:9px;letter-spacing:1px;font-weight:600;}
 </style>
@@ -100,7 +57,6 @@ input[type=text]:focus{border-color:#F97D09;}
 
 <div class="main">
 
-  <!-- Input card -->
   <div class="card" id="input-card">
     <div class="card-title">ENTRY CODE दर्ज करें या QR स्कैन करें</div>
     <input type="text" id="code-input" placeholder="e.g. PNS7CHI..." autocomplete="off" autocorrect="off" autocapitalize="characters"/>
@@ -108,7 +64,6 @@ input[type=text]:focus{border-color:#F97D09;}
     <button class="btn btn-scan" onclick="startScan()">📷 QR कोड स्कैन करें</button>
   </div>
 
-  <!-- Camera -->
   <div id="cam-wrap">
     <video id="qr-video" playsinline muted></video>
     <div class="cam-overlay"></div>
@@ -116,13 +71,11 @@ input[type=text]:focus{border-color:#F97D09;}
     <button class="btn btn-stop" onclick="stopScan()">✕ स्कैन बंद करें</button>
   </div>
 
-  <!-- Scanning -->
   <div id="scanning">
     <div class="spinner"></div>
-    <div style="font-size:14px;font-weight:700;">जांच हो रही है...</div>
+    <div style="font-size:16px;font-weight:700;">जांच हो रही है...</div>
   </div>
 
-  <!-- Result -->
   <div id="result">
     <div class="r-icon" id="r-icon"></div>
     <div class="r-name" id="r-name"></div>
@@ -133,12 +86,11 @@ input[type=text]:focus{border-color:#F97D09;}
     <button class="btn btn-reset" onclick="reset()">↺ अगला प्रवेशार्थी</button>
   </div>
 
-  <!-- Config -->
   <div id="config-section">
     <label>Apps Script URL (एक बार सेट करें)</label>
-    <input type="text" id="script-url" placeholder="https://script.google.com/macros/s/.../exec" style="text-transform:none;letter-spacing:0;font-size:12px;"/>
+    <input type="text" id="script-url" placeholder="https://script.google.com/macros/s/.../exec"/>
     <button class="btn btn-save-url" onclick="saveUrl()">💾 Save URL</button>
-    <div id="url-status">✓ URL saved!</div>
+    <div id="url-status">✓ URL saved successfully!</div>
   </div>
 
 </div>
@@ -150,8 +102,8 @@ input[type=text]:focus{border-color:#F97D09;}
 var stream = null;
 var scanInterval = null;
 var scanning = false;
+var verifyTimeout = null;
 
-// Load saved URL
 window.onload = function() {
   var saved = localStorage.getItem('bjp_scanner_url');
   if (saved) document.getElementById('script-url').value = saved;
@@ -160,15 +112,17 @@ window.onload = function() {
 function saveUrl() {
   var url = document.getElementById('script-url').value.trim();
   if (!url) { alert('URL दर्ज करें'); return; }
+  // Remove trailing slash if any
+  url = url.replace(/\/$/, '');
   localStorage.setItem('bjp_scanner_url', url);
   document.getElementById('url-status').style.display = 'block';
-  setTimeout(function(){ document.getElementById('url-status').style.display = 'none'; }, 2000);
+  setTimeout(function(){ document.getElementById('url-status').style.display = 'none'; }, 3000);
 }
 
 function getScriptUrl() {
   var url = localStorage.getItem('bjp_scanner_url') || document.getElementById('script-url').value.trim();
   if (!url) { alert('कृपया पहले Apps Script URL save करें'); return null; }
-  return url;
+  return url.replace(/\/$/, '');
 }
 
 function verifyManual() {
@@ -187,31 +141,42 @@ function verify(code) {
   document.getElementById('scanning').style.display = 'block';
   document.getElementById('result').style.display = 'none';
 
-  // Call Apps Script via fetch with no-cors workaround
-  fetch(url + '?action=verify&code=' + encodeURIComponent(code))
-    .then(function(r){ return r.text(); })
-    .then(function(text){
-      // Apps Script returns HTML by default, extract JSON
-      var match = text.match(/\{.*\}/s);
-      if (match) {
-        showResult(match[0]);
-      } else {
-        showResult(text);
-      }
-    })
-    .catch(function(err){
-      document.getElementById('scanning').style.display = 'none';
-      alert('Connection error. Check URL and internet.');
-      reset();
-    });
+  // Use JSONP to bypass CORS
+  var callbackName = 'bjpCallback_' + Date.now();
+  var script = document.createElement('script');
+
+  // Timeout after 15 seconds
+  verifyTimeout = setTimeout(function() {
+    cleanup(callbackName, script);
+    document.getElementById('scanning').style.display = 'none';
+    alert('Timeout — कृपया internet connection जांचें और दोबारा try करें।');
+    reset();
+  }, 15000);
+
+  window[callbackName] = function(data) {
+    cleanup(callbackName, script);
+    showResult(data);
+  };
+
+  script.onerror = function() {
+    cleanup(callbackName, script);
+    document.getElementById('scanning').style.display = 'none';
+    alert('Connection failed. Apps Script URL जांचें।');
+    reset();
+  };
+
+  script.src = url + '?action=verify&code=' + encodeURIComponent(code) + '&callback=' + callbackName;
+  document.head.appendChild(script);
 }
 
-function showResult(response) {
-  document.getElementById('scanning').style.display = 'none';
-  var data;
-  try { data = JSON.parse(response); }
-  catch(e) { alert('Response error: ' + response); reset(); return; }
+function cleanup(callbackName, script) {
+  if (verifyTimeout) { clearTimeout(verifyTimeout); verifyTimeout = null; }
+  if (window[callbackName]) delete window[callbackName];
+  if (script && script.parentNode) script.parentNode.removeChild(script);
+}
 
+function showResult(data) {
+  document.getElementById('scanning').style.display = 'none';
   var box = document.getElementById('result');
   box.className = 'result';
 
@@ -219,7 +184,7 @@ function showResult(response) {
     box.classList.add('valid');
     document.getElementById('r-icon').innerText = '✅';
     document.getElementById('r-name').innerText = data.name + ' Ji';
-    document.getElementById('r-table').innerHTML = '<span style="color:#278D27">Table No. ' + data.table + '</span>';
+    document.getElementById('r-table').innerHTML = '<span style="color:#278D27;font-weight:700;">Table No. ' + data.table + '</span>';
     document.getElementById('r-msg').innerText = 'प्रवेश स्वीकृत — स्वागत है!';
     document.getElementById('r-code').innerText = 'Code: ' + data.code;
     document.getElementById('r-time').innerText = 'Scanned: ' + data.time;
@@ -236,7 +201,7 @@ function showResult(response) {
     document.getElementById('r-icon').innerText = '❌';
     document.getElementById('r-name').innerText = data.name || 'अज्ञात';
     document.getElementById('r-table').innerText = '';
-    document.getElementById('r-msg').innerText = data.message || 'Invalid';
+    document.getElementById('r-msg').innerText = data.message || 'कोड नहीं मिला';
     document.getElementById('r-code').innerText = '';
     document.getElementById('r-time').innerText = '';
   }
@@ -253,25 +218,21 @@ function reset() {
 }
 
 function startScan() {
-  var camWrap = document.getElementById('cam-wrap');
-  var video = document.getElementById('qr-video');
-
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('आपका browser camera support नहीं करता। कृपया code manually type करें।');
+    alert('Camera support नहीं है। कृपया code manually type करें।');
     return;
   }
-
   navigator.mediaDevices.getUserMedia({
     video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
   })
   .then(function(s) {
     stream = s;
+    var video = document.getElementById('qr-video');
     video.srcObject = s;
     video.play();
-    camWrap.style.display = 'block';
+    document.getElementById('cam-wrap').style.display = 'block';
     document.getElementById('input-card').style.display = 'none';
     scanning = true;
-
     scanInterval = setInterval(function() {
       if (!scanning || video.readyState !== video.HAVE_ENOUGH_DATA) return;
       var canvas = document.createElement('canvas');
@@ -285,15 +246,13 @@ function startScan() {
         scanning = false;
         verify(code.data.trim().toUpperCase());
       }
-    }, 250);
+    }, 300);
   })
   .catch(function(err) {
     if (err.name === 'NotAllowedError') {
-      alert('Camera permission denied.\n\nPhone Settings → Chrome → Camera → Allow\n\nतब page reload करें।');
-    } else if (err.name === 'NotFoundError') {
-      alert('Camera नहीं मिला। कृपया code manually type करें।');
+      alert('Camera permission blocked.\n\nSettings → Chrome → Camera → Allow\n\nफिर page reload करें।');
     } else {
-      alert('Camera error: ' + err.message);
+      alert('Camera error: ' + err.message + '\n\nकृपया code manually type करें।');
     }
   });
 }
